@@ -73,7 +73,7 @@ export default function Register() {
 
   return (
     <div className="container mt-4 flex h-full w-full flex-col items-center justify-center">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md px-4 sm:px-6 md:px-8">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">
             Create an account

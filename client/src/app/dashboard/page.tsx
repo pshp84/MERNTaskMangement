@@ -7,11 +7,9 @@ import { TaskCard } from "@/components/tasks/TaskCard";
 import { TaskForm } from "@/components/tasks/TaskForm";
 import { Task } from "@/types";
 import { tasks, auth } from "@/lib/api";
-import { wsService } from "@/lib/websocket";
 import { toast } from "react-toastify";
 
 export default function Dashboard() {
-  const router = useRouter();
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -36,7 +34,8 @@ export default function Dashboard() {
 
   const loadTasks = async () => {
     try {
-      const response = await tasks.getAll();
+      const { priority, status, dueDate } = filter;
+      const response = await tasks.getAll({ priority, status, dueDate });
       setTaskList(response.data);
     } catch (error) {
       console.error("Failed to load tasks:", error);
@@ -46,7 +45,7 @@ export default function Dashboard() {
   useEffect(() => {
     loadUsers();
     loadTasks();
-  }, []);
+  }, [filter]);
 
   const handleCreateTask = async (data: Partial<Task>) => {
     try {
@@ -91,28 +90,23 @@ export default function Dashboard() {
     }
   };
 
-  const filteredTasks = taskList.filter((task) => {
-    const taskDueDate = new Date(task.dueDate);
-    const formattedDueDate = taskDueDate.toISOString().slice(0, 10);
-    if (filter.priority && task.priority !== filter.priority) return false;
-    if (filter.status && task.status !== filter.status) return false;
-    if (filter.dueDate && formattedDueDate !== filter.dueDate) return false;
-
-    return true;
-  });
-
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Task Dashboard</h1>
-        <Button onClick={() => setIsFormOpen(true)}>Create Task</Button>
+    <div className="container mx-auto py-8 px-4 sm:px-6 md:px-8">
+      <div className="mb-8 flex items-center justify-between flex-col sm:flex-row">
+        <h1 className="text-3xl font-bold text-center sm:text-left">
+          Task Dashboard
+        </h1>
+        <Button className="sm:mt-4 ml-auto" onClick={() => setIsFormOpen(true)}>Create Task</Button>
       </div>
 
-      <div className="mb-6 flex gap-4 md:text-base">
+      <div className="mb-6 flex flex-col sm:flex-row gap-4 sm:text-base">
         <select
           className="rounded-md border p-2"
           value={filter.priority}
-          onChange={(e) => setFilter({ ...filter, priority: e.target.value })}
+          onChange={(e) => {
+            setFilter({ ...filter, priority: e.target.value });
+            loadTasks();
+          }}
         >
           <option value="">All Priorities</option>
           <option value="Low">Low</option>
@@ -123,7 +117,10 @@ export default function Dashboard() {
         <select
           className="rounded-md border p-2"
           value={filter.status}
-          onChange={(e) => setFilter({ ...filter, status: e.target.value })}
+          onChange={(e) => {
+            setFilter({ ...filter, status: e.target.value });
+            loadTasks();
+          }}
         >
           <option value="">All Statuses</option>
           <option value="To Do">To Do</option>
@@ -135,18 +132,18 @@ export default function Dashboard() {
           className="rounded-md border p-2"
           value={filter.dueDate}
           onChange={(e) => {
-            const selectedDate = e.target.value; // e.g. "2025-04-26"
-            // const isoDate = new Date(selectedDate).toISOString(); // Converts to ISO format
+            const selectedDate = e.target.value; 
             setFilter({ ...filter, dueDate: selectedDate });
+            loadTasks();
           }}
         />
       </div>
 
       <div>
-        {filteredTasks.length > 0 ? (
+        {taskList.length > 0 ? (
           <>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredTasks.map((task) => (
+              {taskList.map((task) => (
                 <TaskCard
                   key={task.id}
                   task={task}
@@ -164,7 +161,7 @@ export default function Dashboard() {
       {(isFormOpen || editingTask) && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
           <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-lg bg-white p-6">
-            <h2 className="mb-4 text-xl font-bold">
+            <h2 className="mb-4 sm:mt-4 text-xl font-bold text-center">
               {editingTask ? "Edit Task" : "Create Task"}
             </h2>
             <TaskForm

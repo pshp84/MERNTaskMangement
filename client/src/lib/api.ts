@@ -67,8 +67,8 @@ export const auth = {
 
 // Tasks API
 export const tasks = {
-  getAll() {
-    return api.get<Task[]>("/tasks");
+  getAll(filters: { priority?: string; status?: string; dueDate?: string } = {}) {
+    return api.get<Task[]>("/tasks", { params: filters });
   },
   create(data: CreateTaskData) {
     return api.post<Task>("/tasks", data);

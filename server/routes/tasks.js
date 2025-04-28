@@ -1,5 +1,5 @@
 const express = require("express");
-const { eq, and, desc, or } = require("drizzle-orm");
+const { eq, and, desc, or, sql } = require("drizzle-orm");
 const db = require("../db");
 const { tasks, taskHistory } = require("../db/schema");
 const authMiddleware = require("../middleware/auth");
@@ -12,9 +12,38 @@ const router = express.Router();
  * /api/tasks:
  *   get:
  *     summary: Get all tasks for the user
- *     tags: [Tasks]
+ *     tags:
+ *       - Tasks
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: dueDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tasks by due date
+ *       - in: query
+ *         name: priority
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - Low
+ *             - Medium
+ *             - High
+ *         description: Filter tasks by priority (Low, Medium, High)
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - To Do
+ *             - In Progress
+ *             - Done
+ *         description: Filter tasks by status (To Do, In Progress, Done)
  *     responses:
  *       200:
  *         description: List of tasks assigned or created by the user
@@ -60,16 +89,33 @@ const router = express.Router();
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const userTasks = await db
+    const { dueDate, priority, status } = req.query;
+
+    const conditions = [
+      or(
+        eq(tasks.createdBy, req.user.userId),
+        eq(tasks.assignedTo, req.user.userId)
+      ),
+    ];
+    if (dueDate) {
+      conditions.push(sql`DATE(${tasks.dueDate}) = ${dueDate}`);
+    }
+    if (priority) {
+      conditions.push(eq(tasks.priority, priority));
+    }
+    if (status) {
+      conditions.push(eq(tasks.status, status));
+    }
+    let query = db
       .select()
       .from(tasks)
-      .where(
-        or(
-          eq(tasks.createdBy, req.user.userId),
-          eq(tasks.assignedTo, req.user.userId)
-        )
-      )
-      .orderBy(desc(tasks.createdAt));
+      .where(and(...conditions));
+
+    // Order by createdAt descending
+    query = query.orderBy(desc(tasks.createdAt));
+
+    // Execute the query and get the filtered tasks
+    const userTasks = await query;
 
     res.json(userTasks);
   } catch (error) {
@@ -185,7 +231,7 @@ router.post("/", authMiddleware, async (req, res) => {
             type: "TASK_CREATED",
             task: newTask,
             userId: assignedTo,
-            date: new Date()
+            date: new Date(),
           }),
         },
       ],
@@ -324,7 +370,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
             type: "TASK_UPDATED",
             task: updatedTask,
             userId: updatedTask.assignedTo,
-            date: new Date()
+            date: new Date(),
           }),
         },
       ],
@@ -414,7 +460,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
             type: "TASK_DELETED",
             taskId: id,
             userId: task.assignedTo,
-            date: new Date()
+            date: new Date(),
           }),
         },
       ],
