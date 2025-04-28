@@ -24,7 +24,7 @@ export function Navbar() {
   const [notificationCount, setNotificationCount] = useState(0);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [storedUser, setStoredUser] = useState("");
 
   const handleUsernameClick = () => {
     setShowLogout((prev) => !prev);
@@ -34,6 +34,7 @@ export function Navbar() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (user && user.id) {
       setIsLoggedIn(true);
+      setStoredUser(user.username);
     }
   }, []);
 
@@ -171,7 +172,7 @@ export function Navbar() {
                 className="flex items-center gap-2 px-3 py-1 border border-gray-300 rounded-full hover:border-blue-400 hover:text-blue-600 cursor-pointer"
               >
                 <UserCircleIcon className="w-8 h-8 text-gray-700" />
-                <span className="hidden md:block">{user?.username || "User"}</span>
+                <span className="hidden md:block">{storedUser || "User"}</span>
               </button>
 
               {showLogout && (
@@ -187,8 +188,7 @@ export function Navbar() {
             </div>
           </>
         ) : (
-          <>
-          </>
+          <></>
         )}
       </nav>
     </>

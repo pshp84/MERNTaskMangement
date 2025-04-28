@@ -73,7 +73,7 @@ export function TaskForm({
   const handleSubmit = async (data: z.infer<typeof taskSchema>) => {
     const formattedData = {
       ...data,
-      dueDate: data.dueDate.toISOString(),
+      dueDate: moment(data.dueDate).format("YYYY-MM-DD"),
     };
     await onSubmit(formattedData);
   };
