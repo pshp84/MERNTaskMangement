@@ -26,6 +26,7 @@ export default function LoginPage() {
       const response = await auth.login({ email, password })
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('user', JSON.stringify(response.data.user))
+      document.cookie = `token=${response.data.token}; path=/; secure;`;
       router.push('/dashboard');
 
       setTimeout(() => {

@@ -93,3 +93,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.notificationIcon {
+  margin-top: -2rem;
+}

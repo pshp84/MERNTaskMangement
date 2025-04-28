@@ -6,10 +6,10 @@ export default defineConfig({
   out: "./drizzle",
   driver: 'pg',
   dbCredentials: {
-    user: "your database username",
-    password: "your database password",
+    user: "postgres",
+    password: "Admin123",
     host: "127.0.0.1",
     port: 5432,
-    database: "taskmanagement1",
+    database: "taskmanagement2",
   }
 });

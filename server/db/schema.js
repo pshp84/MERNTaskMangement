@@ -1,4 +1,4 @@
-const { pgTable, serial, varchar, text, timestamp, json, foreignKey, pgEnum } = require('drizzle-orm/pg-core');
+const { pgTable, serial, varchar, text, timestamp, json, foreignKey, pgEnum,integer } = require('drizzle-orm/pg-core');
 
 // Enums
 const priorityEnum = pgEnum('priority', ['Low', 'Medium', 'High']);
@@ -22,8 +22,8 @@ const tasks = pgTable('tasks', {
   priority: priorityEnum('priority').notNull().default('Medium'),
   status: statusEnum('status').notNull().default('To Do'),
   dueDate: timestamp('due_date'),
-  createdBy: serial('created_by').references(() => users.id),
-  assignedTo: serial('assigned_to').references(() => users.id),
+  createdBy: serial('created_by').references(() => users.id, { onDelete: 'set null' }),
+  assignedTo: serial('assigned_to').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
@@ -31,12 +31,12 @@ const tasks = pgTable('tasks', {
 // Task History table
 const taskHistory = pgTable('task_history', {
   id: serial('id').primaryKey(),
-  taskId: serial('task_id').references(() => tasks.id),
+  taskId: integer('task_id').references(() => tasks.id, { onDelete: 'set null' }),  // Changed from serial to integer
   changeType: varchar('change_type', { length: 50 }).notNull(),
   previousValue: json('previous_value'),
   newValue: json('new_value'),
   timestamp: timestamp('timestamp').defaultNow(),
-  userId: serial('user_id').references(() => users.id),
+  userId: integer('user_id').references(() => users.id, { onDelete: 'set null' }),  // Changed from serial to integer
 });
 
 module.exports = {

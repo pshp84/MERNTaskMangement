@@ -10,6 +10,7 @@ import { tasks, auth } from "@/lib/api";
 import { toast } from "react-toastify";
 
 export default function Dashboard() {
+  const router = useRouter();
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -37,7 +38,7 @@ export default function Dashboard() {
       const { priority, status, dueDate } = filter;
       const response = await tasks.getAll({ priority, status, dueDate });
       setTaskList(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load tasks:", error);
     }
   };
@@ -72,23 +73,27 @@ export default function Dashboard() {
 
   const handleDeleteTask = async (taskId: number) => {
     try {
-      const response = await tasks.delete(taskId);
-      if (response.data) {
-        setTaskList((prev) => prev.filter((t) => t.id !== taskId));
-        toast.success(response.data.message, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+      if(confirm("Are you sure you want to delete this record?")){
+        const response = await tasks.delete(taskId);
+        if (response.data) {
+          setTaskList((prev) => prev.filter((t) => t.id !== taskId));
+          toast.success(response.data.message, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        }
       }
+     
     } catch (error) {
       console.error("Failed to delete task:", error);
     }
   };
+
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 md:px-8">
@@ -96,7 +101,9 @@ export default function Dashboard() {
         <h1 className="text-3xl font-bold text-center sm:text-left">
           Task Dashboard
         </h1>
-        <Button className="sm:mt-4 ml-auto" onClick={() => setIsFormOpen(true)}>Create Task</Button>
+        <Button className="sm:mt-4 ml-auto" onClick={() => setIsFormOpen(true)}>
+          Create Task
+        </Button>
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row gap-4 sm:text-base">
@@ -132,7 +139,7 @@ export default function Dashboard() {
           className="rounded-md border p-2"
           value={filter.dueDate}
           onChange={(e) => {
-            const selectedDate = e.target.value; 
+            const selectedDate = e.target.value;
             setFilter({ ...filter, dueDate: selectedDate });
             loadTasks();
           }}

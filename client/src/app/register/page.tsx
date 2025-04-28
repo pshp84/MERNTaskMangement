@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card";
 import { auth } from "@/lib/api";
 import { useState } from "react";
+import {toast} from "react-toastify"
 
 const registerSchema = z
   .object({
@@ -60,6 +61,15 @@ export default function Register() {
         username: data.name,
       });
       if (response.data) {
+        toast.success(response.data.message, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
         router.push("/");
       }
     } catch (error: any) {

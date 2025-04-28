@@ -1,5 +1,5 @@
 const express = require("express");
-const { eq, and, desc, or, sql } = require("drizzle-orm");
+const { eq, and, desc, or, sql, isNull } = require("drizzle-orm");
 const db = require("../db");
 const { tasks, taskHistory } = require("../db/schema");
 const authMiddleware = require("../middleware/auth");
@@ -96,6 +96,7 @@ router.get("/", authMiddleware, async (req, res) => {
         eq(tasks.createdBy, req.user.userId),
         eq(tasks.assignedTo, req.user.userId)
       ),
+      
     ];
     if (dueDate) {
       conditions.push(sql`DATE(${tasks.dueDate}) = ${dueDate}`);
@@ -440,9 +441,6 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Delete task
-    await db.delete(tasks).where(eq(tasks.id, id));
-
     // Create task history entry
     await db.insert(taskHistory).values({
       taskId: id,
@@ -450,6 +448,9 @@ router.delete("/:id", authMiddleware, async (req, res) => {
       previousValue: JSON.stringify(task),
       userId: req.user.userId,
     });
+
+    // Delete task
+    await db.delete(tasks).where(eq(tasks.id, id));
 
     // Send Kafka notification
     await producer.send({

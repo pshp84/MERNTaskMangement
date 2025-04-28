@@ -22,6 +22,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 interface AuthResponse {
   token: string;
   user: User;
+  message?:string
 }
 
 interface RegisterData {

@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Inter, Roboto_Mono } from "next/font/google";
 import { Navbar } from "@/components/navigation/Navbar";
@@ -26,12 +27,14 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en">
       <body
         className={`${inter.variable} ${robotoMono.variable} font-sans antialiased`}
       >
         <Navbar />
+        {/* {isLoggedInAtom ? children : ''} */}
         {children}
         <ToastContainer position="top-right" autoClose={5000} />
       </body>
