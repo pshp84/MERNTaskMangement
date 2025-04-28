@@ -16,7 +16,6 @@ A modern, real-time task management system built with Next.js 14, TypeScript, an
 - **Framework**: Next.js 14 with TypeScript
 - **UI Components**: ShadcnUI
 - **State Management**: React Query
-- **Form Handling**: React Hook Form with Zod
 - **Real-time**: WebSocket + Kafka Integration
 - **Authentication**: JWT
 - **Styling**: Tailwind CSS
@@ -90,8 +89,7 @@ src/
 
 ### Dashboard
 - Task overview and statistics
-- Filter tasks by status, priority, and assignee
-- Sort tasks by different parameters
+- Filter tasks by status, priority, and due date
 - Real-time updates for task changes
 
 ### Real-time Notifications
