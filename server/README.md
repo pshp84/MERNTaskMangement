@@ -36,13 +36,15 @@ This is the backend server for the Task Management System, built with Node.js, E
    ```bash
    docker-compose up -d
    ```
+   
+4. Replace database username and password into drizzle.config.js file
 
-4. Run database migrations:
+5. Run database migrations:
    ```bash
    npx drizzle-kit push:pg
    ```
 
-5. Start the development server:
+6. Start the development server:
    ```bash
    npm run dev
    ```
