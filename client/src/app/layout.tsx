@@ -1,20 +1,7 @@
-
 import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
-import { Navbar } from "@/components/navigation/Navbar";
 import "./globals.css";
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const robotoMono = Roboto_Mono({
-  subsets: ["latin"],
-  variable: "--font-roboto-mono",
-});
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
 export const metadata: Metadata = {
   title: "Task Management System",
@@ -27,17 +14,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
   return (
-    <html lang="en">
-      <body
-        className={`${inter.variable} ${robotoMono.variable} font-sans antialiased`}
-      >
-        <Navbar />
-        {/* {isLoggedInAtom ? children : ''} */}
-        {children}
-        <ToastContainer position="top-right" autoClose={5000} />
-      </body>
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

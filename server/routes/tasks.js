@@ -1,5 +1,5 @@
 const express = require("express");
-const { eq, and, desc, or, sql, isNull } = require("drizzle-orm");
+const { eq, and, desc, or, sql, isNull, inArray } = require("drizzle-orm");
 const db = require("../db");
 const { tasks, taskHistory } = require("../db/schema");
 const authMiddleware = require("../middleware/auth");
@@ -18,32 +18,31 @@ const router = express.Router();
  *       - bearerAuth: []
  *     parameters:
  *       - in: query
- *         name: dueDate
+ *         name: dueDateFrom
  *         required: false
  *         schema:
  *           type: string
  *           format: date
- *         description: Filter tasks by due date
+ *         description: Filter tasks with due date **on or after** this date (YYYY-MM-DD)
+ *       - in: query
+ *         name: dueDateTo
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tasks with due date **on or before** this date (YYYY-MM-DD)
  *       - in: query
  *         name: priority
  *         required: false
  *         schema:
  *           type: string
- *           enum:
- *             - Low
- *             - Medium
- *             - High
- *         description: Filter tasks by priority (Low, Medium, High)
+ *         description: Comma-separated priorities to filter by (e.g., "Low,Medium,High")
  *       - in: query
  *         name: status
  *         required: false
  *         schema:
  *           type: string
- *           enum:
- *             - To Do
- *             - In Progress
- *             - Done
- *         description: Filter tasks by status (To Do, In Progress, Done)
+ *         description: Comma-separated statuses to filter by (e.g., "To Do,In Progress,Done")
  *     responses:
  *       200:
  *         description: List of tasks assigned or created by the user
@@ -89,7 +88,7 @@ const router = express.Router();
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
-    const { dueDate, priority, status } = req.query;
+    const { dueDateFrom, dueDateTo, priority, status } = req.query;
 
     const conditions = [
       or(
@@ -98,14 +97,19 @@ router.get("/", authMiddleware, async (req, res) => {
       ),
       
     ];
-    if (dueDate) {
-      conditions.push(sql`DATE(${tasks.dueDate}) = ${dueDate}`);
+    if (dueDateFrom && dueDateTo) {
+      conditions.push(sql`DATE(${tasks.dueDate}) BETWEEN ${dueDateFrom} AND ${dueDateTo}`);
+    } else if (dueDateFrom) {
+      conditions.push(sql`DATE(${tasks.dueDate}) >= ${dueDateFrom}`);
+    } else if (dueDateTo) {
+      conditions.push(sql`DATE(${tasks.dueDate}) <= ${dueDateTo}`);
     }
+    
     if (priority) {
-      conditions.push(eq(tasks.priority, priority));
+      conditions.push(inArray(tasks.priority, priority.split(',')));
     }
     if (status) {
-      conditions.push(eq(tasks.status, status));
+      conditions.push(inArray(tasks.status, status.split(',')));
     }
     let query = db
       .select()

@@ -70,9 +70,11 @@ module.exports = {
   		},
   		fontFamily: {
   			sans: [
-  				'var(--font-sans)',
-                    ...fontFamily.sans
-                ]
+  				'var(--font-geist-sans)'
+  			],
+  			mono: [
+  				'var(--font-geist-mono)'
+  			]
   		},
   		keyframes: {
   			'accordion-down': {

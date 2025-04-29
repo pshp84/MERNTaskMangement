@@ -1,30 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { TaskCard } from "@/components/tasks/TaskCard";
-import { TaskForm } from "@/components/tasks/TaskForm";
 import { Task } from "@/types";
 import { tasks, auth } from "@/lib/api";
 import { toast } from "react-toastify";
+import { DataTable } from "@/components/data-table";
+import { TaskFormModal } from "@/components/tasks/TaskFormModel";
+import { taskscolumns } from "@/components/columns";
+import { taskSchema } from "@/data/schems";
+import { taskFilters } from "@/jotai";
+import { useAtom } from "jotai";
 
 export default function Dashboard() {
-  const router = useRouter();
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [filter, setFilter] = useState({
-    priority: "",
-    status: "",
-    dueDate: "",
-  });
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [filter] = useAtom(taskFilters);
 
   const loadUsers = async () => {
     try {
       const response = await auth.users();
-
       if (response.data) {
         setAllUsers(response.data);
       }
@@ -35,8 +32,13 @@ export default function Dashboard() {
 
   const loadTasks = async () => {
     try {
-      const { priority, status, dueDate } = filter;
-      const response = await tasks.getAll({ priority, status, dueDate });
+      const { priority, status, dueDateTo, dueDateFrom } = filter;
+      const response = await tasks.getAll({
+        priority: priority.join(","),
+        status: status.join(","),
+        dueDateTo,
+        dueDateFrom,
+      });
       setTaskList(response.data);
     } catch (error: any) {
       console.error("Failed to load tasks:", error);
@@ -73,7 +75,7 @@ export default function Dashboard() {
 
   const handleDeleteTask = async (taskId: number) => {
     try {
-      if(confirm("Are you sure you want to delete this record?")){
+      if (confirm("Are you sure you want to delete this record?")) {
         const response = await tasks.delete(taskId);
         if (response.data) {
           setTaskList((prev) => prev.filter((t) => t.id !== taskId));
@@ -88,101 +90,81 @@ export default function Dashboard() {
           });
         }
       }
-     
     } catch (error) {
       console.error("Failed to delete task:", error);
     }
   };
 
+  const data: taskSchema[] = taskList.map((task) => {
+    return {
+      id: task.id,
+      title: task.title,
+      status: task.status,
+      priority: task.priority,
+      description: task.description,
+      dueDate: task.dueDate,
+      createdAt: task.createdAt,
+      createdBy: task.createdBy,
+      updatedAt: task.updatedAt,
+      assignedTo: task.assignedTo,
+    };
+  });
+
+  const handleEdit = (task: any) => {
+    setEditingTask(task);
+  };
+
+  if (allUsers.length <= 0) {
+    return <div className="text-2xl text-center mt-16">Loading....</div>;
+  }
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 md:px-8">
-      <div className="mb-8 flex items-center justify-between flex-col sm:flex-row">
-        <h1 className="text-3xl font-bold text-center sm:text-left">
-          Task Dashboard
-        </h1>
-        <Button className="sm:mt-4 ml-auto" onClick={() => setIsFormOpen(true)}>
-          Create Task
-        </Button>
-      </div>
-
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 sm:text-base">
-        <select
-          className="rounded-md border p-2"
-          value={filter.priority}
-          onChange={(e) => {
-            setFilter({ ...filter, priority: e.target.value });
-            loadTasks();
-          }}
-        >
-          <option value="">All Priorities</option>
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
-
-        <select
-          className="rounded-md border p-2"
-          value={filter.status}
-          onChange={(e) => {
-            setFilter({ ...filter, status: e.target.value });
-            loadTasks();
-          }}
-        >
-          <option value="">All Statuses</option>
-          <option value="To Do">To Do</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Done">Done</option>
-        </select>
-        <input
-          type="date"
-          className="rounded-md border p-2"
-          value={filter.dueDate}
-          onChange={(e) => {
-            const selectedDate = e.target.value;
-            setFilter({ ...filter, dueDate: selectedDate });
-            loadTasks();
-          }}
+    <>
+      <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
+     
+        <div className="flex items-center justify-between space-y-2">
+          
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+            <p className="text-muted-foreground">
+              Here&apos;s a list of your tasks!
+            </p>
+          </div>
+          <div className="ml-auto">
+          <Button
+            className="w-full md:w-auto"
+            onClick={() => setIsFormOpen(true)}
+          >
+            Create Task
+          </Button>
+        </div>
+        </div>
+       
+        <DataTable
+          data={data}
+          columns={taskscolumns(handleEdit, handleDeleteTask)}
+          type={"tasks"}
         />
       </div>
-
-      <div>
-        {taskList.length > 0 ? (
-          <>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {taskList.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onEdit={setEditingTask}
-                  onDelete={handleDeleteTask}
-                />
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-center mt-8 text-xl">{"No tasks found."}</div>
-        )}
-      </div>
-
       {(isFormOpen || editingTask) && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50">
           <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-lg bg-white p-6">
             <h2 className="mb-4 sm:mt-4 text-xl font-bold text-center">
               {editingTask ? "Edit Task" : "Create Task"}
             </h2>
-            <TaskForm
+            <TaskFormModal
+              open={isFormOpen || !!editingTask}
               defaultValues={editingTask || undefined}
-              onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
-              users={allUsers}
               onClose={() => {
                 setIsFormOpen(false);
                 setEditingTask(null);
               }}
+              onSubmit={editingTask ? handleUpdateTask : handleCreateTask}
+              users={allUsers}
             />
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

@@ -40,12 +40,12 @@ interface TaskFormProps {
 }
 
 const taskSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
+  title: z.string().min(1, "Title is required."),
+  description: z.string().min(1, "Description is required."),
   priority: z.enum(["Low", "Medium", "High"]),
   status: z.enum(["To Do", "In Progress", "Done"]),
   dueDate: z.date(),
-  assignedTo: z.number().min(1, "Please assign this task to someone"),
+  assignedTo: z.number().min(1, "Please assign this task to someone."),
 });
 
 export function TaskForm({
@@ -91,7 +91,7 @@ export function TaskForm({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel className="text-foreground">Title</FormLabel>
                   <FormControl>
                     <Input placeholder="Task title" {...field} />
                   </FormControl>
@@ -105,7 +105,7 @@ export function TaskForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel className="text-foreground">Description</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Describe the task..."
@@ -124,7 +124,7 @@ export function TaskForm({
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority</FormLabel>
+                    <FormLabel className="text-foreground">Priority</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -152,7 +152,7 @@ export function TaskForm({
                 name="status"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Status</FormLabel>
+                    <FormLabel className="text-foreground">Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -182,7 +182,7 @@ export function TaskForm({
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Due Date</FormLabel>
+                    <FormLabel className="text-foreground">Due Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -220,7 +220,7 @@ export function TaskForm({
                 name="assignedTo"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Assigned To</FormLabel>
+                    <FormLabel className="text-foreground">Assigned To</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(parseInt(value))}
                       defaultValue={field.value?.toString()}

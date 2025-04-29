@@ -25,14 +25,22 @@ import {
 } from "@/components/ui/card";
 import { auth } from "@/lib/api";
 import { useState } from "react";
-import {toast} from "react-toastify"
+import {ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const registerSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
+    name: z.string().nonempty("Name is required."),
+    email: z
+      .string()
+      .nonempty("Email address is required.")
+      .email("Please enter valid email."),
+    password: z
+      .string()
+      .nonempty("Password is required.")
+      .min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().nonempty("Confirm password is required."),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -50,10 +58,12 @@ export default function Register() {
       confirmPassword: "",
     },
   });
-  const [error, setError] = useState('')
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const[confirmShowPassword,setConfirmShowPassword]=useState(false);
 
   const onSubmit = async (data: z.infer<typeof registerSchema>) => {
-    setError('')
+    setError("");
     try {
       const response = await auth.register({
         email: data.email,
@@ -63,7 +73,7 @@ export default function Register() {
       if (response.data) {
         toast.success(response.data.message, {
           position: "top-right",
-          autoClose: 5000,
+          autoClose: 10000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
@@ -73,7 +83,7 @@ export default function Register() {
         router.push("/");
       }
     } catch (error: any) {
-      setError(error?.response?.data?.message || 'Failed to register')
+      setError(error?.response?.data?.message || "Failed to register");
       form.setError("root", {
         type: "manual",
         message: "Registration failed. Please try again.",
@@ -82,8 +92,8 @@ export default function Register() {
   };
 
   return (
-    <div className="container mt-4 flex h-full w-full flex-col items-center justify-center">
-      <Card className="w-full max-w-md px-4 sm:px-6 md:px-8">
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+      <Card className="w-full max-w-sm">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">
             Create an account
@@ -100,9 +110,13 @@ export default function Register() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel className="text-foreground">Name</FormLabel>
                     <FormControl>
-                      <Input className='md:text-base' placeholder="John Doe" {...field} />
+                      <Input
+                        className="md:text-base"
+                        placeholder="John Doe"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -113,10 +127,10 @@ export default function Register() {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel className="text-foreground">Email</FormLabel>
                     <FormControl>
                       <Input
-                      className='md:text-base'
+                        className="md:text-base"
                         type="email"
                         placeholder="john@example.com"
                         {...field}
@@ -131,9 +145,31 @@ export default function Register() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-foreground">Password</FormLabel>
                     <FormControl>
-                      <Input className='md:text-base' type="password" {...field} />
+                      <div className="relative">
+                      <Input
+                        className="md:text-base pr-10"
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        type="button"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {!showPassword ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          Toggle password visibility
+                        </span>
+                      </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -144,16 +180,40 @@ export default function Register() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel className="text-foreground">
+                      Confirm Password
+                    </FormLabel>
                     <FormControl>
-                      <Input className='md:text-base' type="password" {...field} />
+                    <div className="relative">
+                      <Input
+                        className="md:text-base"
+                        type={confirmShowPassword ? "text" : "password"}
+                        {...field}
+                      />
+                       <Button
+                       type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+                        onClick={() => setConfirmShowPassword(!confirmShowPassword)}
+                      >
+                        {!confirmShowPassword ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                        <span className="sr-only">
+                          Toggle confirm password visibility
+                        </span>
+                      </Button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               {error && <div className="text-sm text-red-500">{error}</div>}
-              <Button type="submit" className="w-full md:text-base">
+              <Button type="button" onClick={form.handleSubmit(onSubmit)} className="w-full md:text-base">
                 Create account
               </Button>
             </form>
@@ -168,6 +228,7 @@ export default function Register() {
           </p>
         </CardFooter>
       </Card>
+      <ToastContainer position="top-right" autoClose={10000} />
     </div>
   );
 }
