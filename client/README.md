@@ -4,12 +4,12 @@ A modern, real-time task management system built with Next.js 14, TypeScript, an
 
 ## Features
 
-- 🔐 Secure JWT Authentication
-- 📋 Complete Task Management (Create, Read, Update, Delete)
-- 🔔 Real-time Notifications via WebSocket
-- 📱 Responsive Dashboard with Advanced Filtering
-- 🎨 Modern UI with ShadcnUI Components
-- 🌐 Real-time Updates using Kafka
+- Secure JWT Authentication
+- Complete Task Management (Create, Read, Update, Delete)
+- Real-time Notifications via WebSocket
+- Responsive Dashboard with Advanced Filtering
+- Modern UI with ShadcnUI Components
+- Real-time Updates using Kafka
 
 ## Tech Stack
 
