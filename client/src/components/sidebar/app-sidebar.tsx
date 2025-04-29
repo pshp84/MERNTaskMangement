@@ -1,4 +1,4 @@
-import { UserCircle } from "lucide-react";
+import { ArrowUp, ArrowUpCircle, UserCircle } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -56,8 +56,8 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-2xl">
-            Sample Application
+          <SidebarGroupLabel className="text-base font-semibold text-black">
+            <ArrowUpCircle className="mr-2"/> Acme Inc.
           </SidebarGroupLabel>
           <SidebarGroupContent className="mt-4">
             <SidebarMenu>
