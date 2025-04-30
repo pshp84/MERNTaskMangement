@@ -464,6 +464,7 @@ router.delete("/:id", authMiddleware, async (req, res) => {
           value: JSON.stringify({
             type: "TASK_DELETED",
             taskId: id,
+            task: task,
             userId: task.assignedTo,
             date: new Date(),
           }),

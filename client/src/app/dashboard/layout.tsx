@@ -24,9 +24,8 @@ export default function DashboardLayout({
   const [notificationCount, setNotificationCount] = useState(0);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useAtom(isLoggedInAtom);
-  const [notifications, setNotifications] = useState();
+  const [, setNotifications] = useState();
   const [data, setData] = useState<any[]>([]);
-  console.log(data)
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
