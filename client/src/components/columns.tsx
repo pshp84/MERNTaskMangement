@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { format } from "date-fns";
+import { auth, tasks } from "@/lib/api";
+import { ro } from "@faker-js/faker";
+import { AssignedToCell } from "./assigned-user";
+import { useEffect } from "react";
 
 export type TaskRows = {
   id: number;
@@ -30,45 +35,46 @@ export type TaskRows = {
   updatedAt?: string;
 };
 
+
 export const taskscolumns = (
   onEdit: (task: TaskRows) => void,
-  onDelete: (id: any) => void,
+  onDelete: (id: any) => void
 ): ColumnDef<Task>[] => [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
-    ),
-    cell: ({ row }) => (
-      <div className="w-[80px]">{`TASK-${row.getValue("id")}`}</div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
+  // {
+  //   accessorKey: "id",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Task" />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <div className="w-[80px]">{`TASK-${row.getValue("id")}`}</div>
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "title",
     header: ({ column }) => (
@@ -138,7 +144,41 @@ export const taskscolumns = (
       return value.includes(row.getValue(id));
     },
   },
-
+  {
+    accessorKey: "dueDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Due Date" />
+    ),
+    cell: ({ row }) => {
+      const rawDate = row.getValue("dueDate") as string | number | Date;
+      const formattedDate = rawDate
+        ? format(new Date(rawDate), "MMM dd, yyyy")
+        : "";
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">
+            {formattedDate}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "assignedTo",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Assigned To" />
+    ),
+    cell: ({ row }) => {
+      const userId = row.getValue("assignedTo") as number;
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">
+            <AssignedToCell userId={userId} />
+          </span>
+        </div>
+      );
+    },
+  },
   {
     id: "actions",
     cell: ({ row }) => {
@@ -155,12 +195,17 @@ export const taskscolumns = (
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-[160px] cursor-pointer">
-    
-            <DropdownMenuItem className="cursor-pointer" onClick={() => onEdit(task)}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onEdit(task)}
+            >
               Edit task
             </DropdownMenuItem>
 
-            <DropdownMenuItem className="cursor-pointer" onClick={() => onDelete(task.id)}>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={() => onDelete(task.id)}
+            >
               Delete
               {/* <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut> */}
             </DropdownMenuItem>

@@ -17,9 +17,7 @@ import { addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { CalendarIcon } from "@heroicons/react/24/outline";
 import { Calendar } from "@/components/ui/calendar";
-import { useEffect, useState } from "react";
-import { Task } from "@/types";
-import { auth, tasks } from "@/lib/api";
+import { useState } from "react";
 import { useAtom } from "jotai";
 import { taskFilters } from "@/jotai";
 
@@ -38,15 +36,15 @@ export function TaskTableToolbar<TData>({
   const [filter, setFilter] = useAtom(taskFilters);
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center space-x-2">
+    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2">
         <Input
           placeholder="Filter tasks..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[250px]"
+          className="h-8 w-full sm:w-[150px] md:w-[200px] lg:w-[250px]"
         />
         {table.getColumn("status") && (
           <DataTableFacetedFilter

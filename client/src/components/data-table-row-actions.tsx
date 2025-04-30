@@ -42,6 +42,6 @@ export function DataTableRowActions<TData>({
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+    </DropdownMenu> 
   )
 }

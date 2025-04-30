@@ -120,24 +120,26 @@ export default function Dashboard() {
 
   return (
     <>
-      <div className="hidden h-auto flex-1 flex-col space-y-8 p-8 md:flex">
-        <div className="flex items-center justify-between space-y-2">          
+      <div className="flex h-auto flex-1 flex-col space-y-8 p-4 sm:p-6 md:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+            <h2 className="text-2xl font-bold tracking-tight w-full">
+              Welcome back!
+            </h2>
             <p className="text-muted-foreground">
               Here&apos;s a list of your tasks!
             </p>
           </div>
-          <div className="ml-auto">
-          <Button
-            className="w-full md:w-auto"
-            onClick={() => setIsFormOpen(true)}
-          >
-            Create Task
-          </Button>
+          <div className="ml-auto w-full sm:w-auto">
+            <Button
+              className="w-full sm:w-auto"
+              onClick={() => setIsFormOpen(true)}
+            >
+              Create Task
+            </Button>
+          </div>
         </div>
-        </div>
-       
+
         <DataTable
           data={data}
           columns={taskscolumns(handleEdit, handleDeleteTask)}
