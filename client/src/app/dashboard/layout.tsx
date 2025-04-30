@@ -24,8 +24,9 @@ export default function DashboardLayout({
   const [notificationCount, setNotificationCount] = useState(0);
   const [popoverOpen, setPopoverOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useAtom(isLoggedInAtom);
-  const [, setNotifications] = useState();
+  const [notifications, setNotifications] = useState();
   const [data, setData] = useState<any[]>([]);
+  console.log(data)
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -109,7 +110,7 @@ export default function DashboardLayout({
                           role="alert"
                         >
                           <span className="font-medium">
-                            {"Task created successfully."}
+                            {`Task created: ${el?.task?.title ? el?.task?.title : ""}`}
                           </span>
                           <span>
                             {moment(el.date).format("MMMM Do h:mm A")}
@@ -121,7 +122,7 @@ export default function DashboardLayout({
                           role="alert"
                         >
                           <span className="font-medium">
-                            {"Task updated successfully."}
+                            {`Task updated: ${el?.task?.title ? el?.task?.title : ""}`}
                           </span>
                           <span>
                             {moment(el.date).format("MMMM Do h:mm A")}
@@ -134,7 +135,7 @@ export default function DashboardLayout({
                         >
                           <span className="font-medium">
                             {" "}
-                            {"Task deleted successfully."}
+                            {`Task deleted: ${el?.task?.title ? el?.task?.title : ""}`}
                           </span>
                           <span>
                             {moment(el.date).format("MMMM Do h:mm A")}

@@ -124,7 +124,7 @@ export default function Dashboard() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
             <h2 className="text-2xl font-bold tracking-tight w-full">
-              Welcome back!
+              Task Manager
             </h2>
             <p className="text-muted-foreground">
               Here&apos;s a list of your tasks!
